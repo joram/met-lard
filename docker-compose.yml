@@ -52,8 +52,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    ports:
+      - "3001:3001"
     environment:
       - LARD_CONN_STRING=postgresql://postgres:postgres@db:5432/postgres
+      - LARD_RESTRICTED_CONN_STRING=postgresql://postgres:postgres@db:5432/postgres
       - PG_CONN_STRING=postgresql://postgres:postgres@db:5432/postgres
       - STINFO_CONN_STRING=***replace_me***
     volumes:
