@@ -1,0 +1,76 @@
+services:
+  larddb:
+    image: postgres
+    container_name: lard_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  lardegress:
+    build:
+      context: .
+      dockerfile: egress/Dockerfile
+    container_name: lard_egress
+    depends_on:
+      larddb:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      - LARD_CONN_STRING=postgresql://postgres:postgres@larddb:5432/postgres
+      - LARD_RESTRICTED_CONN_STRING=postgresql://postgres:postgres@larddb:5432/postgres
+      - LARD_READONLY_CONN_STRING=postgresql://postgres:postgres@larddb:5432/postgres
+      - LARD_READONLY_RESTRICTED_CONN_STRING=postgresql://postgres:postgres@larddb:5432/postgres
+      - PARAMCONV_CSV=/resources/paramconversions.csv
+      - AWS_REGION=us-east-1
+      - S3_ENDPOINT_URL=http://localstack:4566
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - S3_BUCKET_NAME=test
+    volumes:
+      - ./resources:/resources:ro
+    command: ["lard_egress"]
+
+  lardingestion:
+    build:
+      context: .
+      dockerfile: ingestion/Dockerfile
+    container_name: lard_ingestion
+    depends_on:
+      larddb:
+        condition: service_healthy
+    environment:
+      - LARD_CONN_STRING=postgresql://postgres:postgres@larddb:5432/postgres
+      - PG_CONN_STRING=postgresql://postgres:postgres@larddb:5432/postgres
+    volumes:
+      - ./qc_pipelines:/qc_pipelines:ro
+      - ./resources:/resources:ro
+    command: ["lard_ingestion"]
+
+  localstack:
+    image: localstack/localstack
+    container_name: lard_localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3
+      - GATEWAY_LISTEN=0.0.0.0:4566
+      - DEBUG=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
