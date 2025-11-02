@@ -24,13 +24,15 @@ services:
         until pg_isready -U postgres; do sleep 1; done
         sleep 2
         echo 'Running schema initialization...'
+        ls -la /docker-entrypoint-initdb.d/
         for f in /docker-entrypoint-initdb.d/*.sql; do
           if [ -f \"\$f\" ]; then
             echo \"Executing \$f...\"
-            psql -U postgres -d postgres -f \"\$f\" || echo \"Warning: \$f may have already been executed\"
+            psql -v ON_ERROR_STOP=1 -U postgres -d postgres -f \"\$f\" 2>&1 || echo \"Warning: \$f failed or already executed\"
           fi
         done
         echo 'Schema initialization complete!'
+        psql -U postgres -d postgres -c \"SELECT schemaname, tablename FROM pg_tables WHERE schemaname IN ('public', 'labels', 'flags', 'legacy') ORDER BY schemaname, tablename;\" || true
         wait \$PID
       "
 
