@@ -33,6 +33,7 @@ services:
       - LARD_RESTRICTED_CONN_STRING=postgresql://postgres:postgres@db:5432/postgres
       - LARD_READONLY_CONN_STRING=postgresql://postgres:postgres@db:5432/postgres
       - LARD_READONLY_RESTRICTED_CONN_STRING=postgresql://postgres:postgres@db:5432/postgres
+      - STINFO_CONN_STRING=***replace_me***
       - PARAMCONV_CSV=/resources/paramconversions.csv
       - AWS_REGION=us-east-1
       - S3_ENDPOINT_URL=http://localstack:4566
@@ -54,6 +55,7 @@ services:
     environment:
       - LARD_CONN_STRING=postgresql://postgres:postgres@db:5432/postgres
       - PG_CONN_STRING=postgresql://postgres:postgres@db:5432/postgres
+      - STINFO_CONN_STRING=***replace_me***
     volumes:
       - ./qc_pipelines:/qc_pipelines:ro
       - ./resources:/resources:ro
