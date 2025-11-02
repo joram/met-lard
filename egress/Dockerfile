@@ -10,16 +10,20 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy workspace files
+# Copy workspace files for dependency resolution
 COPY Cargo.toml Cargo.lock ./
 COPY egress/Cargo.toml ./egress/
 COPY util/Cargo.toml ./util/
 COPY rove_connector/Cargo.toml ./rove_connector/
+COPY ingestion/Cargo.toml ./ingestion/
+COPY integration_tests/Cargo.toml ./integration_tests/
 
-# Copy source code
+# Copy source code (copy all workspace members for cargo workspace resolution)
 COPY egress ./egress
 COPY util ./util
 COPY rove_connector ./rove_connector
+COPY ingestion ./ingestion
+COPY integration_tests ./integration_tests
 
 # Build the binary
 WORKDIR /app

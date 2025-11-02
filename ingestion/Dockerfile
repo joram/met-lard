@@ -11,16 +11,20 @@ RUN apt-get update && apt-get install -y \
     librdkafka-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy workspace files
+# Copy workspace files for dependency resolution
 COPY Cargo.toml Cargo.lock ./
 COPY ingestion/Cargo.toml ./ingestion/
 COPY util/Cargo.toml ./util/
 COPY rove_connector/Cargo.toml ./rove_connector/
+COPY egress/Cargo.toml ./egress/
+COPY integration_tests/Cargo.toml ./integration_tests/
 
-# Copy source code
+# Copy source code (copy all workspace members for cargo workspace resolution)
 COPY ingestion ./ingestion
 COPY util ./util
 COPY rove_connector ./rove_connector
+COPY egress ./egress
+COPY integration_tests ./integration_tests
 
 # Build the binary
 WORKDIR /app
