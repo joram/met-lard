@@ -16,17 +16,22 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-    entrypoint: >
+    command: >
       bash -c "
         docker-entrypoint.sh postgres &
+        PID=\$!
         sleep 5
         until pg_isready -U postgres; do sleep 1; done
+        sleep 2
         echo 'Running schema initialization...'
         for f in /docker-entrypoint-initdb.d/*.sql; do
-          [ -f \"\$f\" ] && echo \"Executing \$f\" && psql -U postgres -d postgres -f \"\$f\" || true
+          if [ -f \"\$f\" ]; then
+            echo \"Executing \$f...\"
+            psql -U postgres -d postgres -f \"\$f\" || echo \"Warning: \$f may have already been executed\"
+          fi
         done
         echo 'Schema initialization complete!'
-        wait
+        wait \$PID
       "
 
   egress:
