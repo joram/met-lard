@@ -11,10 +11,23 @@ services:
     volumes:
       - ./db:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres && psql -U postgres -c 'SELECT 1' -d postgres"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 10s
+    entrypoint: >
+      bash -c "
+        docker-entrypoint.sh postgres &
+        sleep 5
+        until pg_isready -U postgres; do sleep 1; done
+        echo 'Running schema initialization...'
+        for f in /docker-entrypoint-initdb.d/*.sql; do
+          [ -f \"\$f\" ] && echo \"Executing \$f\" && psql -U postgres -d postgres -f \"\$f\" || true
+        done
+        echo 'Schema initialization complete!'
+        wait
+      "
 
   egress:
     build:
