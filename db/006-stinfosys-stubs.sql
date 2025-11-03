@@ -34,3 +34,14 @@ CREATE TABLE IF NOT EXISTS element_info (
     sensorlevel_id TEXT
 );
 
+-- Stub table for message_priority_default (used by egress service)
+-- Columns: message_formatid, paramid, priority, fromtime, totime
+CREATE TABLE IF NOT EXISTS message_priority_default (
+    message_formatid INT4 NOT NULL,
+    paramid INT4 NOT NULL,
+    priority INT4 NOT NULL,
+    fromtime TIMESTAMP,
+    totime TIMESTAMP,
+    PRIMARY KEY (message_formatid, paramid)
+);
+

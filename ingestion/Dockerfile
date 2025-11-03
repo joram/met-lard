@@ -46,5 +46,9 @@ WORKDIR /app
 # Copy the binary from builder
 COPY --from=builder /app/target/release/lard_ingestion /usr/local/bin/lard_ingestion
 
+# Copy qc_pipelines and resources directories (required at runtime)
+COPY qc_pipelines /qc_pipelines
+COPY resources /resources
+
 CMD ["lard_ingestion"]
 

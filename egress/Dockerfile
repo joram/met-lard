@@ -44,5 +44,8 @@ WORKDIR /app
 # Copy the binary from builder
 COPY --from=builder /app/target/release/lard_egress /usr/local/bin/lard_egress
 
+# Copy resources directory (required at runtime)
+COPY resources /resources
+
 CMD ["lard_egress"]
 
