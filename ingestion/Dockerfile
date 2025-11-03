@@ -41,14 +41,18 @@ RUN apt-get update && apt-get install -y \
     librdkafka1 \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /
 
 # Copy the binary from builder
 COPY --from=builder /app/target/release/lard_ingestion /usr/local/bin/lard_ingestion
 
 # Copy qc_pipelines and resources directories (required at runtime)
+# Note: Using root (/) as working directory so relative paths work
 COPY qc_pipelines /qc_pipelines
 COPY resources /resources
+
+# Change to root directory so relative paths like "resources/paramconversions.csv" work
+WORKDIR /
 
 CMD ["lard_ingestion"]
 

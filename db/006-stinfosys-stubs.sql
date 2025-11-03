@@ -45,3 +45,17 @@ CREATE TABLE IF NOT EXISTS message_priority_default (
     PRIMARY KEY (message_formatid, paramid)
 );
 
+-- Stub table for message_priority_exception (used by egress service)
+-- Columns: stationid, message_formatid, paramid, hlevel, sensor, priority, fromtime, totime
+CREATE TABLE IF NOT EXISTS message_priority_exception (
+    stationid INT4 NOT NULL,
+    message_formatid INT4 NOT NULL,
+    paramid INT4 NOT NULL,
+    hlevel INT4,
+    sensor INT4,
+    priority INT4 NOT NULL,
+    fromtime TIMESTAMP,
+    totime TIMESTAMP,
+    PRIMARY KEY (stationid, message_formatid, paramid)
+);
+
